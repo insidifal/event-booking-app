@@ -1,21 +1,15 @@
-import os
-import requests
-import logging
-import http.client
+import httpx
+from typing import Any
 
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
+async def get_eventbrite_user(api_key: str) -> dict[str, Any]:
+    if not isinstance(api_key, str):
+        raise TypeError("API key is not string")
 
-http.client.HTTPConnection.debuglevel = 1
+    headers = { "Authorization": f"Bearer {api_key}" }
+    url = "https://www.eventbriteapi.com/v3/users/me/"
 
-requests_log = logging.getLogger("requests.packages.urllib3")
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = True
+    async with httpx.AsyncClient(headers=headers) as client:
+        response = await client.get(url)
+        response.raise_for_status()
+        return response.json()
 
-url = "https://www.eventbriteapi.com/v3/users/me/"
-auth = {"Authorization": "Bearer " + os.getenv("EVENTBRITE_TOKEN")}
-
-with requests.Session() as session:
-    session.headers = auth
-    response = session.get(url)
-    print(response.text)

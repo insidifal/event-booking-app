@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setup-tools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MyEventBookingApp"
+version = "0.1.0"
+requires-python = ">=3.14.3"
+dependencies = [
+    "fastapi[standard]>=0.135.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov",
+    "httpx>=0.28.1",
+]
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]
+python_files = ["unittests.py","integrationtests.py"]
