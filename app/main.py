@@ -1,16 +1,12 @@
-from model import dbUsers, User
-users = dbUsers() # empty db initialized
-
+import os
+import app.routers as routers
 from fastapi import FastAPI
+
 app = FastAPI()
 
-@app.get("/users")
-async def fetch_user():
-    userlist = users.list()
-    return { "results": userlist }
+if os.getenv("APP_ENV") == "testing":
+    app.include_router(routers.test_router)
 
-@app.post("/newuser/{username}")
-async def create_new_user(user: User):
-    newuser = users.new_user(user)
-    return { "user": newuser }
+app.include_router(routers.main_router)
+
 

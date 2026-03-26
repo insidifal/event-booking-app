@@ -20,20 +20,15 @@ class User(BaseModel):
 
     @staticmethod
     async def login(auth_token: str) -> User:
-        try:
-            user = await srv.get_eventbrite_user(auth_token)
-        except Exception as e:
-            logging.error(e)
-            return None
-        else:
-            return User(
-                user_id=user['id'],
-                firstname=user['first_name'],
-                lastname=user['last_name'],
-                token=auth_token, # encrypt
-                country=None,
-                city=None,
-                timezone=None,
-                currency=None
-            )
+        user = await srv.get_eventbrite_user(auth_token)
+        return User(
+            user_id=user['id'],
+            firstname=user['first_name'],
+            lastname=user['last_name'],
+            token=auth_token, # encrypt
+            country=None,
+            city=None,
+            timezone=None,
+            currency=None
+        )
 
