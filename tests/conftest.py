@@ -1,7 +1,7 @@
 import os
 import pytest
 import asyncio
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 import app.database as db
 from app.main import app
 
@@ -40,7 +40,7 @@ async def client():
     """
     An asynchronous test client.
     """
-    async with AsyncClient(app=app) as testclient:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as testclient:
         yield testclient
 
 
