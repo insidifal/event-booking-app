@@ -1,6 +1,7 @@
 import os
 import app.database as db
-import app.routers as routers
+from app.routers.user_routes import user_router
+from app.routers.auth import auth_router
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
@@ -28,5 +29,6 @@ app = FastAPI(lifespan=lifespan)
 if os.getenv("APP_ENV") == "testing":
     app.include_router(routers.test_router)
 
-app.include_router(routers.main_router)
+app.include_router(user_router)
+app.include_router(auth_router)
 
