@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: mysql:latest
+    image: mysql:9.0
     container_name: mysql-events
     restart: always
     environment:
