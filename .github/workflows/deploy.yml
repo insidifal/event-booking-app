@@ -29,7 +29,7 @@ jobs:
       - name: Initialise database
         run: |
           docker exec -i $(docker ps -qf "ancestor=mysql:9.0") \
-          mysql -uroot -pchangme events_booking_app < init.sql
+          mysql -uroot -pchangeme events_booking_app < init.sql
 
       - name: Set up python
         uses: actions/setup-python@v6
