@@ -9,9 +9,30 @@ services:
       MYSQL_DATABASE: events_booking_app
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-pchangeme"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     volumes:
       - database:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    container_name: events-app
+    restart: always
+    environment:
+      DB_HOST: "db"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./public:/app/public
 
 volumes:
   database:

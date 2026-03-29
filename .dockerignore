@@ -1,0 +1,7 @@
+.git/
+.pytest_cache/
+.venv-events/
+tests/
+.gitignore
+docker-compose.yml
+init.sql

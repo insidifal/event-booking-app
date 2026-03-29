@@ -56,3 +56,6 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount DECIMAL(10, 2),
     currency VARCHAR(10)
 );
+
+INSERT INTO users (user_id, username, firstname, lastname, password, location_id)
+VALUES ('fb853938b2104b58bb47fd38cf35eafc', 'admin', 'Admin', NULL, '$2b$12$6R9tNqFY6aeFKf5UwkhjlOkmctGkPn2V3vlHnec3hpNWQVe.jIROq', NULL);
