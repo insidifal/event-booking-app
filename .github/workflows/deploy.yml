@@ -18,16 +18,18 @@ jobs:
         ports:
           - "3306:3306"
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping -pchangme"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-        volumes:
-          - database:/var/lib/mysql
-          - ${{ github.workspace }}/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Initialise database
+        run: |
+          docker exec -i $(docker ps -qf "ancestor=mysql:9.0") \
+          mysql -uroot -pchangme events_booking_app < init.sql
 
       - name: Set up python
         uses: actions/setup-python@v6
