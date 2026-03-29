@@ -2,7 +2,7 @@ from app.models.user import User
 import app.utils as utils
 from fastapi import APIRouter, status, HTTPException
 
-auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
+auth_router = APIRouter(prefix="/auth", tags=["Authoriztion"])
 
 @auth_router.post(
     "/login",
@@ -13,9 +13,11 @@ auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 )
 async def login(user: User) -> dict:
     if await User.username_exists(user.username):
+        # Get user from database
         _user = await User.by_username(user.username)
+        # Verify password given
         if _user.verify_password(user.password):
-            token = utils.create_token({"user_id": _user.user_id})
+            token = utils.create_token(_user.user_id)
             return {"X-Token": token}
         else:
             raise HTTPException(status_code=401)

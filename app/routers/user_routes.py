@@ -13,16 +13,12 @@ user_router = APIRouter(prefix="/user", tags=["User"])
         500: { "description": "Internal server error" },
     }
 )
-async def get_user(x_token: Annotated[str | None, Header()] = None) -> User:
-    payload = utils.check_token(x_token) # raises HTTPException
-    _user_id = payload["user_id"]
-    if await User.user_id_exists(_user_id):
-        try:
-            return await User.by_user_id(_user_id)
-        except:
-            raise HTTPException(status_code=500)
-    else:
-        raise HTTPException(status_code=401)
+async def get_user(authorization: Annotated[str | None, Header()] = None) -> User:
+    user_id = utils.authorize(authorization) # raises HTTPException
+    try:
+        return await User.by_user_id(user_id)
+    except:
+        raise HTTPException(status_code=500)
 
 @user_router.post(
     "", status_code=status.HTTP_201_CREATED,
@@ -49,19 +45,14 @@ async def post_add_user(user: User) -> User:
         500: { "description": "Internal server error" },
     }
 )
-async def post_modify_user(user: User, x_token: Annotated[str | None, Header()] = None) -> User:
-    payload = utils.check_token(x_token)
-    _user_id = payload["user_id"]
-    if await User.user_id_exists(_user_id):
-        _user = await User.by_user_id(_user_id)
-        if _user.user_id != user.user_id:
-            raise HTTPException(status_code=401)
-        try:
-            return await user.modify_user()
-        except:
-            raise HTTPException(status_code=500)
-    else:
+async def post_modify_user(user: User, authorization: Annotated[str | None, Header()] = None) -> User:
+    _user_id = utils.authorize(authorization)
+    if _user_id != user.user_id:
         raise HTTPException(status_code=401)
+    try:
+        return await user.modify_user()
+    except:
+        raise HTTPException(status_code=500)
 
 @user_router.delete(
     "/{user_id}", status_code=status.HTTP_204_NO_CONTENT,
@@ -71,18 +62,14 @@ async def post_modify_user(user: User, x_token: Annotated[str | None, Header()] 
         500: { "description": "Internal server error" },
     }
 )
-async def delete_user(user_id: str, x_token: Annotated[str | None, Header()] = None) -> None:
-    payload = utils.check_token(x_token)
-    _user_id = payload["user_id"]
-    if await User.user_id_exists(_user_id):
-        _user = await User.by_user_id(_user_id)
-        if _user.user_id != user_id:
-            raise HTTPException(status_code=401)
-        try:
-            await _user.delete_user()
-            return
-        except:
-            raise HTTPException(status_code=500)
-    else:
+async def delete_user(user_id: str, authorization: Annotated[str | None, Header()] = None) -> None:
+    _user_id = utils.authorize(authorization)
+    if _user_id != user_id:
         raise HTTPException(status_code=401)
+    try:
+        user = await User.by_user_id(user_id)
+        await user.delete_user()
+        return
+    except:
+        raise HTTPException(status_code=500)
 

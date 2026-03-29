@@ -18,12 +18,20 @@ body {
     font-size: 28px;
     margin: 0;
 }
+#buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    color: white;
+    font-size: 18px;
+}
 
 #messages {
     position: fixed;
     bottom: 5%;
     left: 50%;
     transform: translate(-50%, -50%);
+    min-width: 250px;
 
     background-color: #fa6161;
     color: white;
@@ -53,12 +61,7 @@ body {
     color: #2C3E50;
 }
 
-#login-button {
-    color: white;
-    font-size: 18px;
-}
-
-#login-box {
+.input-box {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -76,12 +79,14 @@ body {
     gap: 15px;
     min-width: 250px;
 }
-#login-submit {
+.input-box input {
+    font-size: 14px;
+}
+.submit-button {
     padding: 8px;
     border-radius: 8px;
-    background-color: #5a9e6c;
-    color: white;
-    font-size: 18px;
+    color: #5a9e6c;
+    font-size: 16px;
     font-weight: bold;
 }
 

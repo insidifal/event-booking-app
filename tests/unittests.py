@@ -12,18 +12,17 @@ def test_is_safe_string():
     assert utils.is_safe_string("An unsafe 'string'") == False
 
 def test_jwt_token():
-    test_payload = {"body": "test"}
-    token = utils.create_token(test_payload, expire_time=1)
+    token = utils.create_token("test", expire_time=1)
     assert isinstance(token, str)
 
-    payload = utils.check_token(token)
-    assert payload["body"] == "test"
+    user_id = utils.authorize(token)
+    assert user_id == "test"
     with pytest.raises(HTTPException):
-        _ = utils.check_token("invalidtoken")
+        _ = utils.authorize("invalidtoken")
     # This works but disabling for faster testing
     # sleep(2)
     # with pytest.raises(HTTPException):
-    #     _ = utils.check_token(token)
+    #     _ = utils.authorize(token)
 
 def test_user():
     # Pydantic will raise validation errors

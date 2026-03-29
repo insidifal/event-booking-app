@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 import logging
 logging.basicConfig()
@@ -16,6 +16,7 @@ app_dir = os.path.dirname(__file__)
 base_dir = os.path.dirname(app_dir)
 static_dir = os.path.join(base_dir, "public/static")
 templates_dir = os.path.join(base_dir, "public/templates")
+favicon_file = os.path.join(static_dir, "favicon.ico")
 
 # ------------ Database Connection ---------------
 
@@ -49,4 +50,8 @@ async def index(request: Request):
         request=request,
         name="index.html"
     )
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse(favicon_file)
 

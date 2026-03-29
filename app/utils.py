@@ -15,17 +15,35 @@ def is_safe_string(string: str) -> bool:
     check = re.fullmatch(safe_pattern, string)
     return check is not None
 
-def create_token(payload: dict, expire_time: int = 3600) -> str:
+def create_token(user_id: str, expire_time: int = 3600) -> str:
+    """
+    Return JWT token for a user_id.
+    """
     created = datetime.now(timezone.utc)
     expiry = datetime.now(timezone.utc) + timedelta(seconds=expire_time)
-    payload = payload | {"iat": created, "exp": expiry}
+    payload = {
+        "user_id": user_id,
+        "iat": created,
+        "exp": expiry
+    }
     return jwt.encode(payload, SECRET, algorithm="HS256")
 
-def check_token(token: str) -> dict | str:
+def authorize(bearer: str) -> str:
+    """
+    Extract the bearer token and authorize.
+
+    Returns the user_id or raises an HTTPException.
+    """
+    if bearer is None:
+        raise HTTPException(status_code=401)
+    token = bearer.removeprefix("Bearer ")
+
     if token is None:
         raise HTTPException(status_code=401)
+
     try:
-        return jwt.decode(token, SECRET, algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+        return payload["user_id"]
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Expired token")
     except jwt.InvalidTokenError:
