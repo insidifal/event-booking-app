@@ -86,3 +86,27 @@ async def test_delete_user(client):
     assert response.status_code == 204
     assert await User.username_exists("test") == False
 
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_by_category(client):
+    response = await client.get("/event?category=M:usic")
+    assert response.status_code == 400
+    response = await client.get("/event?category=Music")
+    assert response.status_code == 200
+    response = await client.get("/event?category=Music&limit=3")
+    results = response.json()
+    assert len(results) == 3
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_by_event_id(client):
+    response = await client.get("/event/unsafe>>string")
+    assert response.status_code == 400
+    response = await client.get("/event/doesnotexist")
+    assert response.status_code == 404
+
+    response = await client.get("/event?category=Music&limit=1")
+    results = response.json()
+    for event in results:
+        event_id = event["event_id"]
+        response = await client.get(f"/event/{event_id}")
+        assert response.status_code == 200
+

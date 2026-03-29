@@ -57,12 +57,15 @@ async def post_modify_user(user: User, authorization: Annotated[str | None, Head
 @user_router.delete(
     "/{user_id}", status_code=status.HTTP_204_NO_CONTENT,
     responses = {
+        400: { "description": "Bad request" },
         401: { "description": "Unauthorized" },
         404: { "description": "User not found" },
         500: { "description": "Internal server error" },
     }
 )
 async def delete_user(user_id: str, authorization: Annotated[str | None, Header()] = None) -> None:
+    if not utils.is_safe_string(user_id, 50):
+        raise HTTPException(status_code=400, detail="Unsafe input")
     _user_id = utils.authorize(authorization)
     if _user_id != user_id:
         raise HTTPException(status_code=401)

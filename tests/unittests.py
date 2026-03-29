@@ -1,9 +1,11 @@
 import pytest
 import app.utils as utils
 from app.models.user import User
+from app.models.event import Event
 from pydantic import ValidationError
 from fastapi import HTTPException
 from time import sleep
+from contextlib import aclosing
 
 # ------------- Unit Tests -----------------
 
@@ -109,4 +111,33 @@ async def test_delete_user():
     user = await User.by_username("test")
     await user.delete_user()
     assert await User.username_exists("test") == False
+
+def test_event():
+    with pytest.raises(ValidationError):
+        _ = Event()
+    event = Event(
+        name="Test",
+        description="Test event",
+        capacity=100,
+        booked=50,
+        start='2024-07-06 00:00:00',
+        end='2024-07-09 00:00:00',
+        category='Test',
+        price=12.34,
+        currency='ZAR'
+    )
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_by_category():
+    events = await Event.by_category("Music")
+    for event in events:
+        assert "event_id" in event
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_by_event_id():
+    results = await Event.by_category("Music", n=1)
+    for row in results:
+        event_id = row["event_id"]
+        event = await Event.by_event_id(event_id)
+        assert event.category == "Music"
 

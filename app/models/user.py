@@ -1,6 +1,4 @@
 from pydantic import BaseModel, Field, model_validator
-from pydantic_extra_types.timezone_name import TimeZoneName
-from pydantic_extra_types.currency_code import Currency
 import app.database as db
 from uuid import uuid4
 import bcrypt

@@ -6,10 +6,10 @@ from datetime import datetime, timezone, timedelta
 
 SECRET = "e58335f4169541f781130a68fe47bee6"
 
-def is_safe_string(string: str) -> bool:
+def is_safe_string(string: str, max_length: int = 20) -> bool:
     if string == None:
         return True
-    if len(string) > 20:
+    if len(string) > max_length:
         return False
     safe_pattern = r"^[A-Za-z0-9_!@#$.-]+$"
     check = re.fullmatch(safe_pattern, string)
