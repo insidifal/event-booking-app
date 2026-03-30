@@ -11,7 +11,7 @@ def is_safe_string(string: str, max_length: int = 20) -> bool:
         return True
     if len(string) > max_length:
         return False
-    safe_pattern = r"^[A-Za-z0-9_!@#$.-]+$"
+    safe_pattern = r"^[A-Za-z0-9 _!@#$&*.-]+$"
     check = re.fullmatch(safe_pattern, string)
     return check is not None
 

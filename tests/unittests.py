@@ -32,7 +32,7 @@ def test_user():
         _ = User()
     with pytest.raises(ValidationError):
         _ = User(
-            username="  unsafe  ",
+            username="//unsafe",
             firstname="test",
             lastname="test"
         )
@@ -131,13 +131,28 @@ def test_event():
 async def test_by_category():
     events = await Event.by_category("Music")
     for event in events:
-        assert "event_id" in event
+        assert isinstance(event, Event)
+        assert event.category == "Music"
 
 @pytest.mark.asyncio(loop_scope="session")
 async def test_by_event_id():
-    results = await Event.by_category("Music", n=1)
-    for row in results:
-        event_id = row["event_id"]
-        event = await Event.by_event_id(event_id)
-        assert event.category == "Music"
+    events = await Event.by_category("Music", n=1)
+    for event in events:
+        event_id = event.event_id
+        get_event = await Event.by_event_id(event_id)
+        assert get_event.category == "Music"
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_modify_event():
+    events = await Event.by_category("Music", n=1)
+    for event in events:
+        event_id = event.event_id
+        event.capacity = 100
+        event.booked = 99
+        modified_event = await event.modify_event()
+        assert modified_event.event_id == event_id
+        assert modified_event.booked == 99
+        modified_event.booked += 2
+        with pytest.raises(ValidationError):
+            await modified_event.modify_event()
 
