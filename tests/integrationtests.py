@@ -138,3 +138,16 @@ async def test_get_by_filter(client):
     response = await client.get(f"/event?category=Music&location={location_id}&limit=3")
     assert response.status_code == 200
 
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_location(client):
+    response = await client.get("/location?limit=1")
+    locations = response.json()
+    location = locations[0]
+    location_id = location["location_id"]
+
+    response = await client.get(f"/location/{location_id}")
+    assert response.status_code == 200
+    response = await client.get("/location/doesnotexist")
+    assert response.status_code == 404
+    response = await client.get("/location/un~safe")
+    assert response.status_code == 400

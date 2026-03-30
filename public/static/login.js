@@ -1,40 +1,49 @@
 import { showMessage, showBox, hideBox, closeBtn } from './utils.js';
-import { getUser, logoutEvent } from './profile.js';
+import { getUser, loginEvent, logoutEvent } from './profile.js';
 
 export let usertoken = null;
 
 const authenticate = async (username, password) => {
-    const response = await fetch("/auth/login", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 'username': username, 'password': password })
-    });
-    if (!response.ok) {
-        if (response.status === 401) showMessage("Invalid credentials");
-        if (response.status === 404) showMessage("Username does not exist");
-    } else {
-        const payload = await response.json();
-        usertoken = payload["X-Token"];
+    try {
+        const response = await fetch("/auth/login", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'username': username, 'password': password })
+        });
+        if (!response.ok) {
+            if (response.status === 401) showMessage("Invalid credentials");
+            if (response.status === 404) showMessage("Username does not exist");
+            if (response.status === 500) showMessage("Something went wrong");
+        } else {
+            const payload = await response.json();
+            usertoken = payload["X-Token"];
+        }
+    } catch(error) {
+        showMessage(error);
     }
 }
 
 const addUser = async (firstname, lastname, username, password) => {
-    const response = await fetch("/user", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            'firstname': firstname,
-            'lastname': lastname,
-            'username': username,
-            'password': password
-        })
-    });
-    if (!response.ok) {
-        if (response.status === 409) showMessage("Username already exists");
-        if (response.status === 500) showMessage("Something went wrong");
-    } else {
-        const newuser = await response.json();
-        return newuser;
+    try {
+        const response = await fetch("/user", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'firstname': firstname,
+                'lastname': lastname,
+                'username': username,
+                'password': password
+            })
+        });
+        if (!response.ok) {
+            if (response.status === 409) showMessage("Username already exists");
+            if (response.status === 500) showMessage("Something went wrong");
+        } else {
+            const newuser = await response.json();
+            return newuser;
+        }
+    } catch (error) {
+        showMessage(error);
     }
 }
 
@@ -53,7 +62,7 @@ const login = () => {
         if (usertoken !== null) {
             await getUser(); // profile.js
             hideBox('login-box');
-            document.getElementById('login-button').textContent = 'LOGOUT';
+            document.dispatchEvent(loginEvent);
         }
     });
     return div;
@@ -61,15 +70,31 @@ const login = () => {
 
 export const loginBox = () => {
     const div = document.createElement('div');
-    div.innerHTML = `
-        <input id="username-input" type="text" placeholder="Username">
-        <input id="password-input" type="password" placeholder="Password">
-    `;
+
+    const username = document.createElement('input');
+    username.id = "username-input";
+    username.type = "text";
+    username.placeholder = "Username";
+
+    const password = document.createElement('input');
+    password.id = "password-input";
+    password.type = "password";
+    password.placeholder = "Password";
+
+    password.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('login-submit').click();
+        }
+    });
+
     div.prepend(closeBtn(() => hideBox('login-box')));
+    div.append(username);
+    div.append(password);
     div.append(login());
     div.id = 'login-box';
     div.classList.add('input-box');
     div.style.visibility = 'hidden';
+
     return div;
 }
 
@@ -79,7 +104,7 @@ export const loginBtn = () => {
     div.id = 'login-button';
     div.classList.add('button');
     div.addEventListener('click', () => {
-        if (usertoken === null) {
+        if (usertoken === null) { // not logged in
             showBox('login-box');
         } else {
             usertoken = null; // logout

@@ -190,3 +190,12 @@ async def test_list():
     for location in locations:
         assert isinstance(location, Location)
 
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_location():
+    results = await Location.list(1)
+    location = results[0]
+    location_id = location.location_id
+    test = await Location.by_location_id(location_id)
+    assert isinstance(test, Location)
+    assert test.location_id == location.location_id
+

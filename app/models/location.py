@@ -30,3 +30,20 @@ class Location(BaseModel):
                     timezone=row["timezone"]
                 ) for row in results]
 
+    @staticmethod
+    async def by_location_id(location_id: str) -> Location | None:
+        pool = await db.get_database_pool()
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute("SELECT * FROM locations WHERE location_id = %s", location_id)
+                results = await cur.fetchone()
+                if cur.rowcount > 0:
+                    return Location(
+                        location_id=results["location_id"],
+                        country=results["country"],
+                        city=results["city"],
+                        timezone=results["timezone"]
+                    )
+                else:
+                    return None
+
