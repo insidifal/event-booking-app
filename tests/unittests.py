@@ -46,7 +46,7 @@ def test_user():
         username="test",
         firstname="test",
         lastname="test",
-        password="test"
+password="test"
     )
     # validate password hashing
     user.hash_password()
@@ -198,4 +198,63 @@ async def test_get_location():
     test = await Location.by_location_id(location_id)
     assert isinstance(test, Location)
     assert test.location_id == location.location_id
+
+from app.models.account import Account
+
+def test_account():
+    with pytest.raises(ValidationError):
+        _ = Account()
+    account = Account(
+        user_id="test_id"
+    )
+    account = Account(
+        user_id="test_id",
+        balance=10,
+        currency='ZAR'
+    )
+    with pytest.raises(ValidationError):
+        _ = Account(
+            user_id="test_id",
+            balance=-10
+        )
+        _ = Account(
+            user_id="test_id",
+            balance="invalid"
+        )
+        _ = Account(
+            user_id="test_id",
+            balance=10,
+            currency='invalid'
+        )
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_open():
+    admin = await User.by_username("admin")
+    account = await Account(user_id=admin.user_id).open()
+    assert account.balance == 0
+    assert account.currency == 'USD'
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_by_user_id():
+    admin = await User.by_username("admin")
+    account = await Account.by_user_id(admin.user_id)
+    assert account.user_id == admin.user_id
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_update_balance():
+    admin = await User.by_username("admin")
+    account = await Account.by_user_id(admin.user_id)
+    with pytest.raises(ValidationError):
+        account.balance = -10
+        account = await account.update_balance()
+    account.balance = 10
+    account = await account.update_balance()
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_delete_account():
+    admin = await User.by_username("admin")
+    account = await Account.by_user_id(admin.user_id)
+    await account.delete_account()
+    account = await Account.by_user_id(admin.user_id)
+    assert account is None
 

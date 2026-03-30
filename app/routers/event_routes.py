@@ -14,9 +14,11 @@ event_router = APIRouter(prefix="/event", tags=["Event"])
 async def get_event(event_id: str) -> Event:
     if not utils.is_safe_string(event_id, 32):
         raise HTTPException(status_code=400, detail="Unsafe input")
-    if not await Event.event_id_exists(event_id):
+    event = await Event.by_event_id(event_id)
+    if event is None:
         raise HTTPException(status_code=404)
-    return await Event.by_event_id(event_id)
+    else:
+        return event
 
 @event_router.get(
     "",

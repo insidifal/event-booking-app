@@ -61,6 +61,7 @@ class User(BaseModel):
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
+                user = User.model_validate(self) # applies types and input validation
                 self.hash_password()
                 sql = """
                     UPDATE users SET firstname = %s, lastname = %s, password = %s, location_id = %s

@@ -19,7 +19,7 @@ class Event(BaseModel):
     currency: Currency
 
     @model_validator(mode='after')
-    def validate_input(self) -> User:
+    def validate_input(self) -> Event:
         if not utils.is_safe_string(self.name, 30):
             raise ValueError("Unsafe event name")
         if not utils.is_safe_string(self.description, 100):
@@ -55,15 +55,7 @@ class Event(BaseModel):
     # ------------------- Static Methods -----------------------
 
     @staticmethod
-    async def event_id_exists(event_id: str) -> bool:
-        pool = await db.get_database_pool()
-        async with pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute("SELECT 1 FROM events WHERE event_id = %s", event_id)
-                return cur.rowcount > 0
-
-    @staticmethod
-    async def by_filter(category: str | None = None, location_id: str | None = None, n: int = 10) -> list[Event]:
+    async def by_filter(category: str | None = None, location_id: str | None = None, n: int = 10) -> list[Event] | None:
         """
         n = max number of rows to yield.
         """
@@ -76,38 +68,43 @@ class Event(BaseModel):
                 filters = (category, location_id)
                 await cur.execute(sql, filters)
                 results = await cur.fetchmany(size=n)
-                return [Event(
-                    event_id=row["event_id"],
-                    name=row["name"],
-                    description=row["description"],
-                    capacity=row["capacity"],
-                    booked=row["booked"],
-                    start=row["start"],
-                    end=row["end"],
-                    location_id=row["location_id"],
-                    category=row["category"],
-                    price=row["price"],
-                    currency=row["currency"]
-                ) for row in results]
+                if cur.rowcount > 0:
+                    return [Event(
+                        event_id=row["event_id"],
+                        name=row["name"],
+                        description=row["description"],
+                        capacity=row["capacity"],
+                        booked=row["booked"],
+                        start=row["start"],
+                        end=row["end"],
+                        location_id=row["location_id"],
+                        category=row["category"],
+                        price=row["price"],
+                        currency=row["currency"]
+                    ) for row in results]
+                else:
+                    return None
 
     @staticmethod
-    async def by_event_id(event_id: str) -> Event:
+    async def by_event_id(event_id: str) -> Event | None:
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute("SELECT * FROM events WHERE event_id = %s", event_id)
                 results = await cur.fetchone()
-                return Event(
-                    event_id=results["event_id"],
-                    name=results["name"],
-                    description=results["description"],
-                    capacity=results["capacity"],
-                    booked=results["booked"],
-                    start=results["start"],
-                    end=results["end"],
-                    location_id=results["location_id"],
-                    category=results["category"],
-                    price=results["price"],
-                    currency=results["currency"]
-                )
-
+                if cur.rowcount > 0:
+                    return Event(
+                        event_id=results["event_id"],
+                        name=results["name"],
+                        description=results["description"],
+                        capacity=results["capacity"],
+                        booked=results["booked"],
+                        start=results["start"],
+                        end=results["end"],
+                        location_id=results["location_id"],
+                        category=results["category"],
+                        price=results["price"],
+                        currency=results["currency"]
+                    )
+                else:
+                    return None
