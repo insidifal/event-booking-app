@@ -63,38 +63,18 @@ class Event(BaseModel):
                 return cur.rowcount > 0
 
     @staticmethod
-    async def by_category(category: str, n: int = 10) -> list[Event]:
+    async def by_filter(category: str | None = None, location_id: str | None = None, n: int = 10) -> list[Event]:
         """
         n = max number of rows to yield.
         """
+        category = '%' if category is None else category # matches anything
+        location_id = '%' if location_id is None else location_id
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute("SELECT * FROM events WHERE category = %s", category)
-                results = await cur.fetchmany(size=n)
-                return [Event(
-                    event_id=row["event_id"],
-                    name=row["name"],
-                    description=row["description"],
-                    capacity=row["capacity"],
-                    booked=row["booked"],
-                    start=row["start"],
-                    end=row["end"],
-                    location_id=row["location_id"],
-                    category=row["category"],
-                    price=row["price"],
-                    currency=row["currency"]
-                ) for row in results]
-
-    @staticmethod
-    async def by_location(location_id: str, n: int = 10) -> list[Event]:
-        """
-        n = max number of rows to yield.
-        """
-        pool = await db.get_database_pool()
-        async with pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute("SELECT * FROM events WHERE location_id = %s", location_id)
+                sql = "SELECT * FROM events WHERE category LIKE %s AND location_id LIKE %s"
+                filters = (category, location_id)
+                await cur.execute(sql, filters)
                 results = await cur.fetchmany(size=n)
                 return [Event(
                     event_id=row["event_id"],

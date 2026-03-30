@@ -4,6 +4,7 @@ import app.database as db
 from app.routers.auth import auth_router
 from app.routers.user_routes import user_router
 from app.routers.event_routes import event_router
+from app.routers.location_routes import location_router
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -56,6 +57,7 @@ if os.getenv("APP_ENV") == "testing":
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(event_router)
+app.include_router(location_router)
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=templates_dir)

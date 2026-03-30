@@ -131,33 +131,31 @@ def test_event():
     )
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_by_category():
-    events = await Event.by_category("Music")
+async def test_by_filter():
+    events = await Event.by_filter(category="Music")
     for event in events:
         assert isinstance(event, Event)
         assert event.category == "Music"
 
+    results = await Event.by_filter(category="Music", n=1)
+    event = results[0]
+    location_id = event.location_id
+    location_events = await Event.by_filter(location_id=location_id, n=3)
+    assert len(location_events) == 3
+    for location in location_events:
+        assert isinstance(location, Event)
+
 @pytest.mark.asyncio(loop_scope="session")
 async def test_by_event_id():
-    events = await Event.by_category("Music", n=1)
+    events = await Event.by_filter(category="Music", n=1)
     for event in events:
         event_id = event.event_id
         get_event = await Event.by_event_id(event_id)
         assert get_event.category == "Music"
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_by_location():
-    events = await Event.by_category("Music", n=1)
-    for event in events:
-        location_id = event.location_id
-        location_events = await Event.by_location(location_id, n=3)
-        assert len(location_events) == 3
-        for location in location_events:
-            assert isinstance(location, Event)
-
-@pytest.mark.asyncio(loop_scope="session")
 async def test_modify_event():
-    events = await Event.by_category("Music", n=1)
+    events = await Event.by_filter(category="Music", n=1)
     for event in events:
         event_id = event.event_id
         event.capacity = 100

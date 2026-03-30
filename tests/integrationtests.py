@@ -1,6 +1,9 @@
 import pytest
 from app.models.user import User
 
+import logging
+logger = logging.getLogger(__name__)
+
 # ------------- Integration Tests -----------------
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -87,16 +90,6 @@ async def test_delete_user(client):
     assert await User.username_exists("test") == False
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_get_by_category(client):
-    response = await client.get("/event?category=M:usic")
-    assert response.status_code == 400
-    response = await client.get("/event?category=Music")
-    assert response.status_code == 200
-    response = await client.get("/event?category=Music&limit=3")
-    results = response.json()
-    assert len(results) == 3
-
-@pytest.mark.asyncio(loop_scope="session")
 async def test_get_by_event_id(client):
     response = await client.get("/event/unsafe>>string")
     assert response.status_code == 400
@@ -109,4 +102,39 @@ async def test_get_by_event_id(client):
         event_id = event["event_id"]
         response = await client.get(f"/event/{event_id}")
         assert response.status_code == 200
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_locations(client):
+    response = await client.get("/location")
+    assert response.status_code == 200
+    response = await client.get("/location?limit=3")
+    results = response.json()
+    assert len(results) == 3
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_by_location(client):
+    response = await client.get("/location?limit=1")
+    locations = response.json()
+    for location in locations:
+        location_id = location["location_id"]
+        response = await client.get(f"/event?location={location_id}")
+        assert response.status_code == 200
+        results = response.json()
+        for event in results:
+            assert event["location_id"] == location_id
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_by_filter(client):
+    response = await client.get("/event?category=M:usic")
+    assert response.status_code == 400
+    response = await client.get("/event?category=Music")
+    assert response.status_code == 200
+    response = await client.get("/event?category=Music&limit=3")
+    results = response.json()
+    assert len(results) == 3
+
+    event = results[0]
+    location_id = event["location_id"]
+    response = await client.get(f"/event?category=Music&location={location_id}&limit=3")
+    assert response.status_code == 200
 
