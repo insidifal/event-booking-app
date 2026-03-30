@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import app.database as db
 from app.routers.auth import auth_router
 from app.routers.user_routes import user_router
@@ -9,9 +10,22 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, FileResponse
 
+# ------------------- Logging ----------------------
+
 import logging
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
+from pythonjsonlogger import json
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = json.JsonFormatter("%(asctime)s %(name)s %(levelname)s %(message)s")
+
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
+# ------------------- Paths ----------------------
 
 app_dir = os.path.dirname(__file__)
 base_dir = os.path.dirname(app_dir)

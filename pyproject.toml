@@ -13,6 +13,7 @@ dependencies = [
     "fastapi[standard]>=0.135.2",
     "pycountry>=26.2.16",
     "pyjwt>=2.12.1",
+    "python-json-logger>=4.1.0",
 ]
 
 [project.optional-dependencies]
@@ -38,3 +39,6 @@ addopts = [
     "tests/unittests.py",
     "tests/integrationtests.py",
 ]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s %(name)s %(levelname)s %(message)s"

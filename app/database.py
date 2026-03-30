@@ -1,6 +1,9 @@
 import os
 import aiomysql
 
+import logging
+logger = logging.getLogger(__name__)
+
 # Pool for asynchronous database connections
 pool = None
 
@@ -17,6 +20,7 @@ async def get_database_pool():
             autocommit=True,
             cursorclass=aiomysql.DictCursor
         )
+        logger.info("Connected to database")
     return pool
 
 async def close_pool():
@@ -24,5 +28,6 @@ async def close_pool():
     if pool:
         pool.close()
         await pool.wait_closed()
+        logger.info("Closed connection to database")
         pool = None
 

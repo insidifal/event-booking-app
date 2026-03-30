@@ -47,43 +47,34 @@ class User(BaseModel):
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    # Pydantic will raise validation errors here to be handled in the router
-                    self.hash_password()
-                    sql = """
-                        INSERT INTO users (user_id, username, firstname, lastname, password)
-                        VALUES (%s, %s, %s, %s, %s)
-                        """
-                    values = (self.user_id, self.username, self.firstname, self.lastname, self.password)
-                    await cur.execute(sql, values)
-                    return self
-                except:
-                    raise Exception("Could not create user")
+                # Pydantic will raise validation errors here to be handled in the router
+                self.hash_password()
+                sql = """
+                    INSERT INTO users (user_id, username, firstname, lastname, password)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """
+                values = (self.user_id, self.username, self.firstname, self.lastname, self.password)
+                await cur.execute(sql, values)
+                return self
 
     async def modify_user(self) -> User:
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    self.hash_password()
-                    sql = """
-                        UPDATE users SET firstname = %s, lastname = %s, password = %s, location_id = %s
-                        WHERE user_id = %s
-                        """
-                    values = (self.firstname, self.lastname, self.password, self.location_id, self.user_id)
-                    await cur.execute(sql, values)
-                    return self
-                except:
-                    raise Exception("Could not modify user")
+                self.hash_password()
+                sql = """
+                    UPDATE users SET firstname = %s, lastname = %s, password = %s, location_id = %s
+                    WHERE user_id = %s
+                    """
+                values = (self.firstname, self.lastname, self.password, self.location_id, self.user_id)
+                await cur.execute(sql, values)
+                return self
 
     async def delete_user(self):
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    await cur.execute("DELETE FROM users WHERE user_id = %s", self.user_id)
-                except:
-                    raise Exception("Could not delete user")
+                await cur.execute("DELETE FROM users WHERE user_id = %s", self.user_id)
 
     # ------------------- Static Methods -----------------------
 
@@ -92,58 +83,46 @@ class User(BaseModel):
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    await cur.execute("SELECT 1 FROM users WHERE username = %s", username)
-                    return cur.rowcount > 0
-                except:
-                    raise Exception("Could not search for username")
+                await cur.execute("SELECT 1 FROM users WHERE username = %s", username)
+                return cur.rowcount > 0
 
     @staticmethod
     async def user_id_exists(user_id: str) -> bool:
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    await cur.execute("SELECT 1 FROM users WHERE user_id = %s", user_id)
-                    return cur.rowcount > 0
-                except:
-                    raise Exception("Could not search for user ID")
+                await cur.execute("SELECT 1 FROM users WHERE user_id = %s", user_id)
+                return cur.rowcount > 0
 
     @staticmethod
     async def by_username(username: str) -> User:
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    await cur.execute("SELECT * FROM users WHERE username = %s", username)
-                    results = await cur.fetchone()
-                    return User(
-                        user_id=results["user_id"],
-                        username=results["username"],
-                        firstname=results["firstname"],
-                        lastname=results["lastname"],
-                        password=results["password"],
-                        location_id=results["location_id"]
-                    )
-                except:
-                    raise Exception("Could not retieve user")
+                await cur.execute("SELECT * FROM users WHERE username = %s", username)
+                results = await cur.fetchone()
+                return User(
+                    user_id=results["user_id"],
+                    username=results["username"],
+                    firstname=results["firstname"],
+                    lastname=results["lastname"],
+                    password=results["password"],
+                    location_id=results["location_id"]
+                )
 
     @staticmethod
     async def by_user_id(user_id: str) -> User:
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
-                try:
-                    await cur.execute("SELECT * FROM users WHERE user_id = %s", user_id)
-                    results = await cur.fetchone()
-                    return User(
-                        user_id=results["user_id"],
-                        username=results["username"],
-                        firstname=results["firstname"],
-                        lastname=results["lastname"],
-                        password=results["password"],
-                        location_id=results["location_id"]
-                    )
-                except:
-                    raise Exception("Could not retieve user")
+                await cur.execute("SELECT * FROM users WHERE user_id = %s", user_id)
+                results = await cur.fetchone()
+                return User(
+                    user_id=results["user_id"],
+                    username=results["username"],
+                    firstname=results["firstname"],
+                    lastname=results["lastname"],
+                    password=results["password"],
+                    location_id=results["location_id"]
+                )
 
