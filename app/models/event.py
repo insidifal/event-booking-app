@@ -65,7 +65,6 @@ class Event(BaseModel):
     @staticmethod
     async def by_category(category: str, n: int = 10) -> list[Event]:
         """
-        Returns a generator that yields an event_id in the specified category.
         n = max number of rows to yield.
         """
         pool = await db.get_database_pool()
@@ -87,6 +86,29 @@ class Event(BaseModel):
                     currency=row["currency"]
                 ) for row in results]
 
+    @staticmethod
+    async def by_location(location_id: str, n: int = 10) -> list[Event]:
+        """
+        n = max number of rows to yield.
+        """
+        pool = await db.get_database_pool()
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute("SELECT * FROM events WHERE location_id = %s", location_id)
+                results = await cur.fetchmany(size=n)
+                return [Event(
+                    event_id=row["event_id"],
+                    name=row["name"],
+                    description=row["description"],
+                    capacity=row["capacity"],
+                    booked=row["booked"],
+                    start=row["start"],
+                    end=row["end"],
+                    location_id=row["location_id"],
+                    category=row["category"],
+                    price=row["price"],
+                    currency=row["currency"]
+                ) for row in results]
 
     @staticmethod
     async def by_event_id(event_id: str) -> Event:

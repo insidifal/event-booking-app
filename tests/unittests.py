@@ -1,13 +1,12 @@
 import pytest
-import app.utils as utils
-from app.models.user import User
-from app.models.event import Event
 from pydantic import ValidationError
 from fastapi import HTTPException
 from time import sleep
 from contextlib import aclosing
 
 # ------------- Unit Tests -----------------
+
+import app.utils as utils
 
 def test_is_safe_string():
     assert utils.is_safe_string("Asafe_u$er-n@me123") == True
@@ -25,6 +24,8 @@ def test_jwt_token():
     # sleep(2)
     # with pytest.raises(HTTPException):
     #     _ = utils.authorize(token)
+
+from app.models.user import User
 
 def test_user():
     # Pydantic will raise validation errors
@@ -112,6 +113,8 @@ async def test_delete_user():
     await user.delete_user()
     assert await User.username_exists("test") == False
 
+from app.models.event import Event
+
 def test_event():
     with pytest.raises(ValidationError):
         _ = Event()
@@ -143,6 +146,16 @@ async def test_by_event_id():
         assert get_event.category == "Music"
 
 @pytest.mark.asyncio(loop_scope="session")
+async def test_by_location():
+    events = await Event.by_category("Music", n=1)
+    for event in events:
+        location_id = event.location_id
+        location_events = await Event.by_location(location_id, n=3)
+        assert len(location_events) == 3
+        for location in location_events:
+            assert isinstance(location, Event)
+
+@pytest.mark.asyncio(loop_scope="session")
 async def test_modify_event():
     events = await Event.by_category("Music", n=1)
     for event in events:
@@ -155,4 +168,27 @@ async def test_modify_event():
         modified_event.booked += 2
         with pytest.raises(ValidationError):
             await modified_event.modify_event()
+
+from app.models.location import Location
+
+def test_location():
+    with pytest.raises(ValidationError):
+        _ = Location()
+    location = Location(
+        country="South Africa",
+        city="Cape Town",
+        timezone="Africa/Johannesburg"
+    )
+    with pytest.raises(ValidationError):
+        _ = Location(
+            country="South Africa",
+            city="Cape Town",
+            timezone="Africa"
+        )
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_list():
+    locations = await Location.list()
+    for location in locations:
+        assert isinstance(location, Location)
 
