@@ -199,6 +199,94 @@ async def test_get_location():
     assert isinstance(test, Location)
     assert test.location_id == location.location_id
 
+from app.models.booking import Booking
+
+def test_booking():
+    with pytest.raises(ValidationError):
+        _ = Booking()
+    booking = Booking(
+        user_id="test_id",
+        event_id="test_id"
+    )
+    booking = Booking(
+        user_id="test_id",
+        event_id="test_id",
+        seats=10,
+        total_price=10,
+        currency='ZAR'
+    )
+    with pytest.raises(ValidationError):
+        _ = Booking(
+            user_id="test_id",
+            event_id="test_id",
+            seats=0
+        )
+        _ = Booking(
+            user_id="test_id",
+            event_id="test_id",
+            total_price=-10,
+        )
+        _ = Booking(
+            user_id="test_id",
+            event_id="test_id",
+            currency='invalid'
+        )
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_new_booking():
+    admin = await User.by_username("admin")
+    results = await Event.by_filter(category="Music", n=1)
+    event = results[0]
+
+    booking = await Booking(
+        user_id=admin.user_id,
+        event_id=event.event_id,
+    ).new_booking()
+    assert booking.seats == 1
+    assert booking.total_price == 0
+    assert booking.currency == 'USD'
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_booking_by_user_id():
+    admin = await User.by_username("admin")
+    bookings = await Booking.by_user_id(admin.user_id)
+    for booking in bookings:
+        assert booking.user_id == admin.user_id
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_by_booking_id():
+    admin = await User.by_username("admin")
+    bookings = await Booking.by_user_id(admin.user_id)
+    for booking in bookings:
+        _booking = await Booking.by_booking_id(booking.booking_id)
+        assert _booking.booking_id == booking.booking_id
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_modify_booking():
+    admin = await User.by_username("admin")
+    bookings = await Booking.by_user_id(admin.user_id)
+    for booking in bookings:
+        with pytest.raises(ValidationError):
+            booking.seats = -10
+            booking = await booking.modify_booking()
+        with pytest.raises(ValidationError):
+            booking.total_price = -10
+            booking = await booking.modify_booking()
+        booking.seats = 10
+        booking.total_price = 100
+        booking = await booking.modify_booking()
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_cancel_booking():
+    admin = await User.by_username("admin")
+    bookings = await Booking.by_user_id(admin.user_id)
+    for booking in bookings:
+        await booking.cancel_booking()
+        booking = await Booking.by_booking_id(booking.booking_id)
+        assert booking is None
+    bookings = await Booking.by_user_id(admin.user_id)
+    assert bookings == []
+
 from app.models.account import Account
 
 def test_account():

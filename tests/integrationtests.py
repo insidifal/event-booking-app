@@ -183,7 +183,7 @@ async def test_get_account(client):
     assert account["currency"] == 'USD'
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_post_update_balance(client):
+async def test_put_update_balance(client):
     user = {"username": "admin", "password": "changeme"}
     auth = await client.post("/auth/login", json=user)
     token_header = auth.json()
@@ -224,6 +224,98 @@ async def test_delete_account(client):
     assert response.status_code == 404
 
     response = await client.put("/user/account", json=account, headers=auth_header)
+    assert response.status_code == 404
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_post_new_booking(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/user/me", headers=auth_header)
+    admin = response.json()
+
+    response = await client.get("/event?limit=1")
+    results = response.json()
+    event = results[0]
+
+    body = {
+        "user_id": admin["user_id"],
+        "event_id": event["event_id"]
+    }
+
+    response = await client.post("/booking", json=body, headers=auth_header)
+    assert response.status_code == 201
+    booking = response.json()
+    assert booking["seats"] == 1
+    assert booking["total_price"] == 0
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_booking(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/booking", headers=auth_header)
+    assert response.status_code == 200
+    bookings = response.json()
+    booking = bookings[0]
+    assert booking["seats"] == 1
+    assert booking["total_price"] == 0
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_put_modify_booking(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/booking", headers=auth_header)
+    bookings = response.json()
+    body = bookings[0]
+    body["seats"] = 2
+    body["total_price"] = 100
+
+    response = await client.put("/booking", json=body, headers=auth_header)
+    assert response.status_code == 200
+    booking = response.json()
+    assert booking["seats"] == 2
+    assert booking["total_price"] == 100
+
+    body["seats"] = 0
+    response = await client.put("/booking", json=body, headers=auth_header)
+    assert response.status_code == 422
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_delete_booking(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/booking", headers=auth_header)
+    bookings = response.json()
+    booking = bookings[0]
+    booking_id = booking["booking_id"]
+
+    response = await client.delete(f"/booking/{booking_id}", headers=auth_header)
+    assert response.status_code == 204
+
+    response = await client.get("/booking", headers=auth_header)
+    assert response.status_code == 200
+    assert response.json() == []
+
+    response = await client.put("/booking", json=booking, headers=auth_header)
     assert response.status_code == 404
 
 

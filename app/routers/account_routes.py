@@ -38,7 +38,7 @@ async def post_open_account(authorization: Annotated[str | None, Header()] = Non
         404: { "description": "User not found" },
     }
 )
-async def post_update_balance(account: Account, authorization: Annotated[str | None, Header()] = None) -> Account:
+async def put_update_balance(account: Account, authorization: Annotated[str | None, Header()] = None) -> Account:
     _user_id = utils.authorize(authorization)
     if _user_id != account.user_id:
         raise HTTPException(status_code=401)
