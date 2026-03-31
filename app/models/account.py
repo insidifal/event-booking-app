@@ -40,7 +40,10 @@ class Account(BaseModel):
                     """
                 values = (self.balance, self.currency, self.account_id)
                 await cur.execute(sql, values)
-                return self
+                if cur.rowcount > 0:
+                    return self
+                else:
+                    return
 
     async def delete_account(self):
         pool = await db.get_database_pool()

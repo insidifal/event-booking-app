@@ -1,5 +1,6 @@
 import { showMessage, showBox, hideBox, closeBtn, getLocations } from './utils.js';
 import { usertoken } from './login.js';
+import { account } from './account.js';
 
 const emptyUser = {
     "user_id": "",
@@ -11,6 +12,8 @@ const emptyUser = {
 };
 
 let user = emptyUser;
+let newPassword = "";
+let newLocation = "";
 
 export const loginEvent = new CustomEvent("loggedIn", {
     detail: user,
@@ -26,13 +29,8 @@ export const logoutEvent = new CustomEvent("loggedOut", {
 
 document.addEventListener('loggedOut', () => {
     user = emptyUser;
-    document.getElementById('profile-button').remove();
-    document.getElementById('profile-box').remove();
-});
-
-document.addEventListener('loggedIn', async () => {
-    document.getElementById('register-button').remove();
-    document.getElementById('login-button').textContent = 'LOGOUT';
+    hideBox(profileBtn());
+    hideBox(profileBox());
 });
 
 export const getUser = async () => {
@@ -93,8 +91,8 @@ export const profileBtn = () => {
     div.textContent = user["firstname"];
     div.id = 'profile-button';
     div.classList.add('button');
-    div.addEventListener('click', () => {
-        showBox('profile-box');
+    div.addEventListener('click', async () => {
+        showBox(await profileBox());
     });
     return div;
 }
@@ -103,31 +101,43 @@ export const profileBox = async () => {
     const div = document.createElement('div');
     div.innerHTML = `
         <h3>${user["firstname"]} ${user["lastname"]}</h3>
-        <h3>Username: ${user["username"]}</h3>
     `;
+
+    const username = document.createElement('div');
+    username.innerHTML = `
+        <label for="profile-username">Username:</label>
+        <span id="profile-username">${user["username"]}</span>
+    `
+    div.append(username);
+
+    let accS = account["account_id"] === "" ? "Inactive" : "Active";
+    const accountStatus = document.createElement('div');
+    accountStatus.innerHTML = `
+        <label for="account-status">Account:</label>
+        <span id="account-status">${accS}</span>
+    `
+    div.append(accountStatus);
 
     const password = document.createElement('input');
     password.id = "new-password";
     password.type = "password";
     password.placeholder = "Change password";
     password.addEventListener('change', () => {
-        user["password"] = password.value;
-        document.getElementById('confirm-button')
+        newPassword = password.value;
+        document.getElementById('confirm-profile')
             .style.visibility = 'visible';
     });
-
-
     div.append(password);
+
     div.append(await dropDownLocation());
     div.append(confirmBtn());
-    div.prepend(closeBtn(() => {
-        hideBox('profile-box');
-        document.getElementById('confirm-button')
-            .style.visibility = 'hidden';
+    div.prepend(closeBtn(async () => {
+        hideBox(await profileBox());
+        newPassword = "";
+        newLocation = "";
     }));
     div.id = 'profile-box';
     div.classList.add('input-box');
-    div.style.visibility = 'hidden';
     return div;
 }
 
@@ -175,8 +185,8 @@ const dropDownLocation = async () => {
     }
 
     select.addEventListener('change', () => {
-        user["location_id"] = select.value;
-        document.getElementById('confirm-button')
+        newLocation = select.value;
+        document.getElementById('confirm-profile')
             .style.visibility = 'visible';
     });
 
@@ -187,11 +197,16 @@ const dropDownLocation = async () => {
 const confirmBtn = () => {
     const div = document.createElement('div');
     div.textContent = 'CONFIRM';
-    div.id = 'confirm-button';
+    div.id = 'confirm-profile';
     div.classList.add('button');
     div.classList.add('submit-button');
     div.addEventListener('click', async () => {
+        if (newPassword !== "") user["password"] = newPassword;
+        if (newLocation !== "") user["location_id"] = newLocation;
         await updateUser();
+        newPassword = "";
+        newLocation = "";
+        hideBox(await profileBox());
     });
     div.style.visibility = 'hidden';
     return div;

@@ -151,3 +151,82 @@ async def test_get_location(client):
     assert response.status_code == 404
     response = await client.get("/location/un~safe")
     assert response.status_code == 400
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_post_open_account(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.post("/user/account", headers=auth_header)
+    assert response.status_code == 201
+    account = response.json()
+    assert account["balance"] == 0
+    assert account["currency"] == 'USD'
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_account(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/user/account", headers=auth_header)
+    assert response.status_code == 200
+    account = response.json()
+    assert account["balance"] == 0
+    assert account["currency"] == 'USD'
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_post_update_balance(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/user/account", headers=auth_header)
+    assert response.status_code == 200
+    account = response.json()
+    account["balance"] = 50
+    account["currency"] = 'GBP'
+
+    response = await client.put("/user/account", json=account, headers=auth_header)
+    assert response.status_code == 200
+    account = response.json()
+    assert account["balance"] == 50
+    assert account["currency"] == 'GBP'
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_delete_account(client):
+    user = {"username": "admin", "password": "changeme"}
+    auth = await client.post("/auth/login", json=user)
+    token_header = auth.json()
+
+    token = token_header["X-Token"]
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    response = await client.get("/user/account", headers=auth_header)
+    assert response.status_code == 200
+    account = response.json()
+    account_id = account["account_id"]
+
+    response = await client.delete(f"/user/account/{account_id}", headers=auth_header)
+    assert response.status_code == 204
+
+    response = await client.get("/user/account", headers=auth_header)
+    assert response.status_code == 404
+
+    response = await client.put("/user/account", json=account, headers=auth_header)
+    assert response.status_code == 404
+
+
+
+
+

@@ -51,7 +51,7 @@ async def post_modify_user(user: User, authorization: Annotated[str | None, Head
     }
 )
 async def delete_user(user_id: str, authorization: Annotated[str | None, Header()] = None) -> None:
-    if not utils.is_safe_string(user_id, 50):
+    if not utils.is_safe_string(user_id, 32):
         raise HTTPException(status_code=400, detail="Unsafe input")
     _user_id = utils.authorize(authorization)
     if _user_id != user_id:

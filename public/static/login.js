@@ -3,6 +3,13 @@ import { getUser, loginEvent, logoutEvent } from './profile.js';
 
 export let usertoken = null;
 
+document.addEventListener('loggedIn', async () => {
+    hideBox(registerBtn());
+    hideBox(registerBox());
+    hideBox(loginBox());
+    document.getElementById('login-button').textContent = 'LOGOUT';
+});
+
 const authenticate = async (username, password) => {
     try {
         const response = await fetch("/auth/login", {
@@ -61,7 +68,7 @@ const login = () => {
         }
         if (usertoken !== null) {
             await getUser(); // profile.js
-            hideBox('login-box');
+            hideBox(loginBox());
             document.dispatchEvent(loginEvent);
         }
     });
@@ -87,13 +94,12 @@ export const loginBox = () => {
         }
     });
 
-    div.prepend(closeBtn(() => hideBox('login-box')));
+    div.prepend(closeBtn(() => hideBox(loginBox())));
     div.append(username);
     div.append(password);
     div.append(login());
     div.id = 'login-box';
     div.classList.add('input-box');
-    div.style.visibility = 'hidden';
 
     return div;
 }
@@ -105,7 +111,7 @@ export const loginBtn = () => {
     div.classList.add('button');
     div.addEventListener('click', () => {
         if (usertoken === null) { // not logged in
-            showBox('login-box');
+            showBox(loginBox());
         } else {
             usertoken = null; // logout
             document.dispatchEvent(logoutEvent);
@@ -132,7 +138,8 @@ const register = () => {
         }
         if (usertoken !== null) {
             await getUser(); // profile.js - triggers login
-            hideBox('register-box');
+            hideBox(registerBox());
+            document.dispatchEvent(loginEvent);
         }
     });
     return div;
@@ -146,11 +153,10 @@ export const registerBox = () => {
         <input id="register-username" type="text" placeholder="Username">
         <input id="register-password" type="password" placeholder="Password">
     `;
-    div.prepend(closeBtn(() => hideBox('register-box')));
+    div.prepend(closeBtn(() => hideBox(registerBox())));
     div.append(register());
     div.id = 'register-box';
     div.classList.add('input-box');
-    div.style.visibility = 'hidden';
     return div;
 }
 
@@ -160,7 +166,7 @@ export const registerBtn = () => {
     div.id = 'register-button';
     div.classList.add('button');
     div.addEventListener('click', () => {
-        showBox('register-box');
+        showBox(registerBox());
     });
     return div;
 }

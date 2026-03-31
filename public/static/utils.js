@@ -1,34 +1,38 @@
-export const messageBox = () => {
+const main = document.getElementById('main');
+
+export const messageBox = (message) => {
     const div = document.createElement('div');
     const text = document.createElement('span');
     text.id = 'message-text';
-    div.prepend(closeBtn(() => hideBox('messages')));
+    text.textContent = message;
+    div.prepend(closeBtn(() => hideBox(messageBox())));
     div.append(text);
-    div.id = 'messages';
-    div.style.visibility = 'hidden';
+    div.id = 'message-box';
     return div;
 }
 
 export const showMessage = (message) => {
-    const text = document.getElementById('message-text');
     try {
-        text.textContent = message;
-        showBox('messages');
+        showBox(messageBox(message));
     } catch (error) {
         console.log(error);
     }
 }
 
-export const showBox = (boxId) => {
-    const box = document.getElementById(boxId);
-    if (box.style.visibility === 'hidden')
-        box.style.visibility = 'visible';
+export const showBox = (box) => {
+    const exists = document.getElementById(box.id);
+    if (exists === null) {
+        main.append(box);
+    } else {
+        exists.remove();
+    }
 }
 
-export const hideBox = (boxId) => {
-    const box = document.getElementById(boxId);
-    if (box.style.visibility === 'visible')
-        box.style.visibility = 'hidden';
+export const hideBox = (box) => {
+    const exists = document.getElementById(box.id);
+    if (exists !== null) {
+        exists.remove();
+    }
 }
 
 export const closeBtn = (action) => {

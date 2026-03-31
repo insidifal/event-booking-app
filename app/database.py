@@ -1,5 +1,6 @@
 import os
 import aiomysql
+from pymysql.constants import CLIENT
 
 import logging
 logger = logging.getLogger(__name__)
@@ -18,7 +19,8 @@ async def get_database_pool():
             password="changeme",
             db="events_booking_app",
             autocommit=True,
-            cursorclass=aiomysql.DictCursor
+            cursorclass=aiomysql.DictCursor,
+            client_flag=CLIENT.FOUND_ROWS
         )
         logger.info("Connected to database")
     return pool
