@@ -14,12 +14,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 document.addEventListener('loggedIn', async () => {
     banner.prepend(await accountBtn(), profileBtn());
 });
-
 document.addEventListener('loggedOut', () => {
     banner.append( registerBtn() );
 });
 
 document.addEventListener('activated', async () => {
+    banner.prepend(await accountBtn());
+});
+document.addEventListener('deactivated', async () => {
     banner.prepend(await accountBtn());
 });
 

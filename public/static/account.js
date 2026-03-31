@@ -1,4 +1,4 @@
-import { showMessage, showBox, hideBox, closeBtn } from './utils.js';
+import { showMessage, showBox, hideBox, closeBtn, deleteBtn } from './utils.js';
 import { usertoken } from './login.js';
 
 const emptyAccount = {
@@ -18,6 +18,12 @@ export const activateEvent = new CustomEvent("activated", {
     cancelable: true
 });
 
+export const deactivateEvent = new CustomEvent("deactivated", {
+    detail: emptyAccount,
+    bubbles: true,
+    cancelable: true
+});
+
 document.addEventListener('loggedOut', async () => {
     account = emptyAccount;
     hideBox(await accountBtn());
@@ -29,7 +35,13 @@ document.addEventListener('activated', async () => {
     hideBox(activateBox());
 });
 
-const getAccount = async () => {
+document.addEventListener('deactivated', async () => {
+    account = emptyAccount;
+    hideBox(await accountBtn());
+    hideBox(await accountBox());
+});
+
+export const getAccount = async () => {
     if (usertoken === null) return null;
     try {
         const response = await fetch("/user/account", {
@@ -102,6 +114,30 @@ const updateAccount = async () => {
     }
 }
 
+const deleteAccount = async () => {
+    if (usertoken === null) return null;
+    if (account["account_id"] === "") return null;
+    try {
+        const response = await fetch(`/user/account/${account["account_id"]}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${usertoken}`
+            }
+        });
+        if (!response.ok) {
+            if (response.status === 400) showMessage("Bad input");
+            if (response.status === 401) showMessage("Invalid credentials");
+            if (response.status === 404) showMessage("Account does not exist");
+            if (response.status === 500) showMessage("Something went wrong");
+        } else {
+            account = emptyAccount;
+        }
+    } catch (error) {
+        showMessage(error);
+    }
+}
+
 export const accountBtn = async () => {
     await getAccount();
     const div = document.createElement('div');
@@ -110,25 +146,31 @@ export const accountBtn = async () => {
         div.addEventListener('click', () => {
             showBox(activateBox());
         });
-        div.addEventListener('activated', () => {
-            div.textContent = "Account";
-            div.addEventListener('click', async () => {
-                showBox(await accountBox());
-            });
-        });
     } else {
         div.textContent = "Account";
         div.addEventListener('click', async () => {
             showBox(await accountBox());
         });
     }
+    div.addEventListener('activated', () => {
+        div.textContent = "Account";
+        div.addEventListener('click', async () => {
+            showBox(await accountBox());
+        });
+    });
+    div.addEventListener('deactivated', () => {
+        div.textContent = "Activate";
+        div.addEventListener('click', async () => {
+            showBox(activateBox());
+        });
+    });
 
     div.id = 'account-button';
     div.classList.add('button');
     return div;
 }
 
-const activateBox = () => {
+export const activateBox = () => {
     const div = document.createElement('div');
     const header = document.createElement('h3');
     header.textContent = "Activate your account";
@@ -166,14 +208,14 @@ export const accountBox = async () => {
     balance.innerHTML = `
         <label for="account-balance">Balance:</label>
         <span id="account-balance">${account["currency"]} ${account["balance"]}</span>
-    `
+    `;
     div.append(balance);
 
     const deposit = document.createElement('div');
     deposit.innerHTML = `
         <label for="account-deposit">Add / Withdraw</label>
         <input id="account-deposit" type="number" min="${-1 * account["balance"]}" placeholder="0.00">
-    `
+    `;
     deposit.addEventListener('change', () => {
         newBalance = document.getElementById('account-deposit').value;
         document.getElementById('confirm-account')
@@ -183,6 +225,11 @@ export const accountBox = async () => {
 
     div.append(dropDownCurrency());
     div.append(confirmBtn());
+    div.append(deleteBtn("DELETE ACCOUNT", async () => {
+        await deleteAccount();
+        document.dispatchEvent(deactivateEvent);
+    }));
+
     div.prepend(closeBtn(async () => {
         hideBox(await accountBox());
         newBalance = null;
@@ -253,5 +300,3 @@ const confirmBtn = () => {
     div.style.visibility = 'hidden';
     return div;
 }
-
-

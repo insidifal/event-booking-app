@@ -1,22 +1,47 @@
 const main = document.getElementById('main');
 
-export const messageBox = (message) => {
+export const showMessage = (message) => {
     const div = document.createElement('div');
+    div.id = 'message-box';
     const text = document.createElement('span');
     text.id = 'message-text';
     text.textContent = message;
-    div.prepend(closeBtn(() => hideBox(messageBox())));
     div.append(text);
-    div.id = 'message-box';
-    return div;
+    div.prepend(closeBtn(() => hideBox(div)));
+    showBox(div);
 }
 
-export const showMessage = (message) => {
-    try {
-        showBox(messageBox(message));
-    } catch (error) {
-        console.log(error);
-    }
+export const areYouSure = async (warning, yesAction) => {
+    const div = document.createElement('div');
+    div.id = 'warning-box';
+
+    const text = document.createElement('h2');
+    text.id = 'warning-text';
+    text.textContent = warning;
+    div.append(text);
+
+    const buttons = document.createElement('div');
+    buttons.id = 'warning-buttons';
+    const yes = document.createElement('button');
+    yes.textContent = "YES";
+    yes.classList.add('button');
+    yes.classList.add('delete-button');
+    yes.addEventListener('click', async () => {
+        await yesAction();
+        hideBox(div);
+    });
+    buttons.append(yes);
+
+    const no = document.createElement('button');
+    no.textContent = "NO";
+    no.addEventListener('click', () => hideBox(div));
+    no.classList.add('button');
+    no.classList.add('delete-button');
+    buttons.append(no);
+
+    div.append(buttons);
+    div.prepend(closeBtn(() => hideBox(div)));
+    showBox(div);
 }
 
 export const showBox = (box) => {
@@ -37,11 +62,22 @@ export const hideBox = (box) => {
 
 export const closeBtn = (action) => {
     const div = document.createElement('div');
-    div.textContent = 'x';
+    div.textContent = '⮌';
     div.id = 'close-button';
     div.classList.add('button');
     div.addEventListener('click', () => {
         action();
+    });
+    return div;
+}
+
+export const deleteBtn = (label, yes) => {
+    const div = document.createElement('div');
+    div.textContent = label;
+    div.classList.add('button');
+    div.classList.add('delete-button');
+    div.addEventListener('click', async () => {
+        await areYouSure("This cannot be undone", yes);
     });
     return div;
 }

@@ -2,6 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #dfebe1;
 }
 
 #banner {
@@ -24,6 +25,11 @@ body {
     gap: 20px;
     color: white;
     font-size: 18px;
+}
+
+#main {
+    padding: 20px;
+    gap: 20px;
 }
 
 #events-display {
@@ -64,9 +70,9 @@ body {
 #close-button {
     position: absolute;
     top: 5px;
-    right: 5px;
+    left: 5px;
     padding: 10px;
-    font-size: 14px;
+    font-size: 20px;
     color: #2C3E50;
 }
 
@@ -77,7 +83,7 @@ body {
     transform: translate(-50%, -50%);
 
     background-color: white;
-    padding: 30px;
+    padding: 50px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     border: 2px solid #2C3E50;
@@ -107,16 +113,114 @@ body {
     font-size: 16px;
     font-weight: bold;
 }
+.delete-button {
+    padding: 8px;
+    border-radius: 8px;
+    color: #fa6161;
+    font-size: 16px;
+    font-weight: bold;
+}
 
 .event-card {
     position: relative;
-    border: 1px solid #5a9e6c;
+    border: 1px solid #1d3d25;
     border-radius: 5px;
     padding: 8px;
     margin-bottom: 20px;
+    background-color: white;
 
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .event-card:hover {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.event-card h2 {
+    color: #1d3d25;
+    font-size: 24px;
+    font-weight: bold;
+}
+.event-card label {
+    color: #1d3d25;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.view-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 5px;
+    color: #5a9e6c;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    letter-spacing: 1px;
+}
+
+.event-view {
+    position: relative;
+    border: 1px solid #1d3d25;
+    border-radius: 5px;
+    background-color: white;
+    padding: 30px;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.event-view h2 {
+    color: #1d3d25;
+    font-size: 40px;
+    font-weight: bold;
+}
+.event-view label {
+    color: #1d3d25;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#event-desc {
+    color: #1d3d25;
+    font-size: 25px;
+    font-style: italic;
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    padding: 5px;
+    color: #5a9e6c;
+    letter-spacing: 0.5px;
+}
+#booking-panel {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 50px;
+}
+
+#warning-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background-color: white;
+    padding: 50px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border: 2px solid #2C3E50;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    min-width: 250px;
+}
+#warning-buttons {
+    font-weight: bold;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 20px;
 }

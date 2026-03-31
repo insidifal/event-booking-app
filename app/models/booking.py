@@ -26,6 +26,12 @@ class Booking(BaseModel):
             async with conn.cursor() as cur:
                 # Pydantic will raise validation errors here to be handled in the router
                 sql = """
+                    UPDATE events SET booked = booked + %s
+                    WHERE event_id = %s
+                    """
+                values = (self.seats, self.event_id)
+                await cur.execute(sql, values)
+                sql = """
                     INSERT INTO bookings (booking_id, user_id, event_id, seats, total_price, currency)
                     VALUES (%s, %s, %s, %s, %s, %s)
                     """
@@ -38,6 +44,12 @@ class Booking(BaseModel):
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
                 booking = Booking.model_validate(self) # applies types and input validation
+                sql = """
+                    UPDATE events SET booked = booked - (SELECT seats FROM bookings WHERE booking_id = %s) + %s
+                    WHERE event_id = %s
+                    """
+                values = (self.booking_id, self.seats, self.event_id)
+                await cur.execute(sql, values)
                 sql = """
                     UPDATE bookings SET seats = %s, total_price = %s, currency = %s
                     WHERE booking_id = %s
@@ -53,6 +65,12 @@ class Booking(BaseModel):
         pool = await db.get_database_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
+                sql = """
+                    UPDATE events SET booked = booked - %s
+                    WHERE event_id = %s
+                    """
+                values = (self.seats, self.event_id)
+                await cur.execute(sql, values)
                 await cur.execute("DELETE FROM bookings WHERE booking_id = %s", self.booking_id)
 
     # ------------------- Static Methods -----------------------

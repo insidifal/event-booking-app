@@ -1,4 +1,5 @@
 from app.models.booking import Booking
+from app.models.event import Event
 import app.utils as utils
 from fastapi import APIRouter, Header, status, HTTPException
 from typing import Annotated
@@ -20,10 +21,14 @@ async def get_bookings(authorization: Annotated[str | None, Header()] = None) ->
     responses = {
         401: { "description": "Unauthorized" },
         409: { "description": "Booking already exists" },
+        501: { "description": "Too many seats" },
     }
 )
 async def post_new_booking(booking: Booking, authorization: Annotated[str | None, Header()] = None) -> Booking:
     user_id = utils.authorize(authorization) # raises HTTPException
+    event = await Event.by_event_id(booking.event_id);
+    if event.booked + booking.seats > event.capacity:
+        raise HTTPException(status_code=501)
     if await Booking.by_booking_id(booking.booking_id) is None:
         return await booking.new_booking()
     else:
@@ -34,12 +39,16 @@ async def post_new_booking(booking: Booking, authorization: Annotated[str | None
     responses = {
         401: { "description": "Unauthorized" },
         404: { "description": "Booking not found" },
+        501: { "description": "Too many seats" },
     }
 )
 async def put_modify_booking(booking: Booking, authorization: Annotated[str | None, Header()] = None) -> Booking:
     _user_id = utils.authorize(authorization)
     if _user_id != booking.user_id:
         raise HTTPException(status_code=401)
+    event = await Event.by_event_id(booking.event_id);
+    if event.booked + booking.seats > event.capacity:
+        raise HTTPException(status_code=501)
     booking = await booking.modify_booking() # raises ValidationError
     if booking is None:
         raise HTTPException(status_code=404, detail="Booking not found")

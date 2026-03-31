@@ -157,6 +157,7 @@ async def test_by_event_id():
 async def test_modify_event():
     events = await Event.by_filter(category="Music", n=1)
     for event in events:
+        _event = event.copy()
         event_id = event.event_id
         event.capacity = 100
         event.booked = 99
@@ -166,6 +167,7 @@ async def test_modify_event():
         modified_event.booked += 2
         with pytest.raises(ValidationError):
             await modified_event.modify_event()
+        await _event.modify_event()
 
 from app.models.location import Location
 

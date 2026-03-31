@@ -11,7 +11,7 @@ const emptyUser = {
     "location_id": ""
 };
 
-let user = emptyUser;
+export let user = emptyUser;
 let newPassword = "";
 let newLocation = "";
 
