@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS bookings (
     booking_id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255),
+    account_id VARCHAR(255),
     event_id VARCHAR(255),
     seats INT,
     total_price DECIMAL(10, 2),
@@ -65,7 +66,7 @@ VALUES
 ('a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6', 'South Africa', 'Cape Town', 'Africa/Johannesburg');
 
 INSERT INTO users (user_id, username, firstname, lastname, password, location_id)
-VALUES ('fb853938b2104b58bb47fd38cf35eafc', 'admin', 'Admin', NULL, '$2b$12$6R9tNqFY6aeFKf5UwkhjlOkmctGkPn2V3vlHnec3hpNWQVe.jIROq', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6');
+VALUES ('fb853938b2104b58bb47fd38cf35eafc', 'admin', 'Admin', NULL, '$2b$12$ZS8Z7RAsnk1VDdvpGjr4gu6Xd.DEKd4ij9dbzMk5mTxgwsp/95DmG', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6');
 
 INSERT INTO events (event_id, name, description, capacity, booked, start, end, location_id, category, price, currency)
 VALUES

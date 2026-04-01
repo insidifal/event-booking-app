@@ -5,12 +5,12 @@ services:
     container_name: mysql-events
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PW}
       MYSQL_DATABASE: events_booking_app
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-pchangeme"]
+      test: ["CMD","mysqladmin","ping","-h","localhost","-u","root","-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,6 +25,8 @@ services:
     restart: always
     environment:
       DB_HOST: "db"
+      JWT_SECRET: ${JWT_SECRET}
+      MYSQL_PW: ${MYSQL_PW}
     ports:
       - "8000:8000"
     depends_on:

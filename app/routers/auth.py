@@ -2,7 +2,7 @@ from app.models.user import User
 import app.utils as utils
 from fastapi import APIRouter, status, HTTPException
 
-auth_router = APIRouter(prefix="/auth", tags=["Authoriztion"])
+auth_router = APIRouter(prefix="/auth", tags=["Authorization"])
 
 @auth_router.post(
     "/login",
