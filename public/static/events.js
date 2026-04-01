@@ -1,4 +1,4 @@
-import { showBox, showMessage, closeBtn, getLocation } from './utils.js';
+import { showBox, showAlert, showMessage, closeBtn, getLocation } from './utils.js';
 import { usertoken, loginBox } from './login.js';
 import { account, activateBox } from './account.js';
 import { user } from './profile.js';
@@ -24,15 +24,17 @@ export const postBooking = async (event, seats, total_price) => {
             })
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Unauthorized");
-            if (response.status === 409) showMessage("Booking exists");
-            if (response.status === 422) showMessage("Validation error");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Unauthorized");
+            if (response.status === 409) showAlert("Booking exists");
+            if (response.status === 422) showAlert("Validation error");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
-            return await response.json();
+            const booking = await response.json();
+            showMessage(`Booking Ref: ${booking["booking_id"]}`);
+            return booking;
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -45,13 +47,13 @@ const getEvents = async () => {
             } 
         });
         if (!response.ok) {
-            if (response.status === 400) showMessage("Invalid search");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 400) showAlert("Invalid search");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             return await response.json();
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -64,15 +66,15 @@ const getEvent = async (event_id) => {
             }
         });
         if (!response.ok) {
-            if (response.status === 400) showMessage("Invalid search");
-            if (response.status === 404) showMessage("Event not found");
-            if (response.status === 422) showMessage("Something went wrong");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 400) showAlert("Invalid search");
+            if (response.status === 404) showAlert("Event not found");
+            if (response.status === 422) showAlert("Something went wrong");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             return await response.json();
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -172,7 +174,7 @@ export const displayEvents = async () => {
         }
         div.appendChild(fragment);
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
     return div;
 }
@@ -217,7 +219,7 @@ export const viewEvent = async (event_id) => {
             main.append(await displayEvents());
         }));
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
     return div;
 }
@@ -259,7 +261,7 @@ export const bookEvent = (event) => {
             await postBooking(event, document.getElementById('booking-seats').value, document.getElementById('booking-price').textContent);
         });
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
     return div;
 }

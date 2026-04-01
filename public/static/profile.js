@@ -1,4 +1,4 @@
-import { showMessage, showBox, hideBox, closeBtn, getLocations } from './utils.js';
+import { showAlert, showMessage, showBox, hideBox, closeBtn, getLocations } from './utils.js';
 import { usertoken } from './login.js';
 import { account } from './account.js';
 
@@ -44,14 +44,14 @@ export const getUser = async () => {
             }
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Invalid credentials");
-            if (response.status === 404) showMessage("Username does not exist");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Invalid credentials");
+            if (response.status === 404) showAlert("Username does not exist");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             user = await response.json();
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -74,15 +74,16 @@ export const updateUser = async () => {
             })
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Unauthorized");
-            if (response.status === 404) showMessage("User does not exist");
-            if (response.status === 422) showMessage("Could not validate input");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Unauthorized");
+            if (response.status === 404) showAlert("User does not exist");
+            if (response.status === 422) showAlert("Could not validate input");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             user = await response.json();
+            showMessage("Updated");
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 

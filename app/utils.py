@@ -4,7 +4,7 @@ import jwt
 from fastapi import HTTPException
 from datetime import datetime, timezone, timedelta
 
-SECRET = "e58335f4169541f781130a68fe47bee6"
+SECRET = os.getenv("JWT_SECRET")
 
 def is_safe_string(string: str, max_length: int = 20) -> bool:
     if string == None:

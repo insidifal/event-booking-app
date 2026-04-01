@@ -1,4 +1,4 @@
-import { showMessage, showBox, hideBox, closeBtn } from './utils.js';
+import { showAlert, showMessage, showBox, hideBox, closeBtn } from './utils.js';
 import { getUser, loginEvent, logoutEvent } from './profile.js';
 
 export let usertoken = null;
@@ -18,15 +18,16 @@ const authenticate = async (username, password) => {
             body: JSON.stringify({ 'username': username, 'password': password })
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Invalid credentials");
-            if (response.status === 404) showMessage("Username does not exist");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Invalid credentials");
+            if (response.status === 404) showAlert("Username does not exist");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             const payload = await response.json();
             usertoken = payload["X-Token"];
+            showMessage(`Logged in as ${username}`);
         }
     } catch(error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -43,14 +44,15 @@ const addUser = async (firstname, lastname, username, password) => {
             })
         });
         if (!response.ok) {
-            if (response.status === 409) showMessage("Username already exists");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 409) showAlert("Username already exists");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             const newuser = await response.json();
+            showMessage("New user created");
             return newuser;
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -114,6 +116,7 @@ export const loginBtn = () => {
             showBox(loginBox());
         } else {
             usertoken = null; // logout
+            showMessage("Logged out");
             document.dispatchEvent(logoutEvent);
             div.textContent = 'LOGIN';
         }

@@ -11,6 +11,17 @@ export const showMessage = (message) => {
     showBox(div);
 }
 
+export const showAlert = (message) => {
+    const div = document.createElement('div');
+    div.id = 'alert-box';
+    const text = document.createElement('span');
+    text.id = 'alert-text';
+    text.textContent = message;
+    div.append(text);
+    div.prepend(closeBtn(() => hideBox(div)));
+    showBox(div);
+}
+
 export const areYouSure = async (warning, yesAction) => {
     const div = document.createElement('div');
     div.id = 'warning-box';
@@ -50,6 +61,7 @@ export const showBox = (box) => {
         main.append(box);
     } else {
         exists.remove();
+        main.append(box);
     }
 }
 

@@ -48,6 +48,24 @@ body {
     transform: translate(-50%, -50%);
     min-width: 250px;
 
+    background-color: #7ff268;
+    color: black;
+    font-weight: bold;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+#alert-box {
+    position: fixed;
+    z-index: 100;
+    bottom: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 250px;
+
     background-color: #fa6161;
     color: white;
     font-weight: bold;
@@ -58,6 +76,7 @@ body {
     box-sizing: border-box;
     border-radius: 8px;
 }
+
 
 .button {
     transition: opacity 0.2s;

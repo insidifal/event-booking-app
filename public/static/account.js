@@ -1,4 +1,4 @@
-import { showMessage, showBox, hideBox, closeBtn, deleteBtn } from './utils.js';
+import { showAlert, showMessage, showBox, hideBox, closeBtn, deleteBtn } from './utils.js';
 import { usertoken } from './login.js';
 
 const emptyAccount = {
@@ -52,14 +52,14 @@ export const getAccount = async () => {
             }
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Invalid credentials");
-            // if (response.status === 404) showMessage("Account does not exist");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Invalid credentials");
+            // if (response.status === 404) showAlert("Account does not exist");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             account = await response.json();
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -74,15 +74,16 @@ const openAccount = async () => {
             }
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Invalid credentials");
-            if (response.status === 404) showMessage("User does not exist");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Invalid credentials");
+            if (response.status === 404) showAlert("User does not exist");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             account = await response.json();
+            showMessage("Account activated");
             document.dispatchEvent(activateEvent);
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -103,14 +104,15 @@ const updateAccount = async () => {
             })
         });
         if (!response.ok) {
-            if (response.status === 401) showMessage("Invalid credentials");
-            if (response.status === 404) showMessage("Not found");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 401) showAlert("Invalid credentials");
+            if (response.status === 404) showAlert("Not found");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             account = await response.json();
+            showMessage("Account updated");
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
@@ -126,15 +128,16 @@ const deleteAccount = async () => {
             }
         });
         if (!response.ok) {
-            if (response.status === 400) showMessage("Bad input");
-            if (response.status === 401) showMessage("Invalid credentials");
-            if (response.status === 404) showMessage("Account does not exist");
-            if (response.status === 500) showMessage("Something went wrong");
+            if (response.status === 400) showAlert("Bad input");
+            if (response.status === 401) showAlert("Invalid credentials");
+            if (response.status === 404) showAlert("Account does not exist");
+            if (response.status === 500) showAlert("Something went wrong");
         } else {
             account = emptyAccount;
+            showMessage("Account deleted");
         }
     } catch (error) {
-        showMessage(error);
+        showAlert(error);
     }
 }
 
