@@ -13,7 +13,7 @@ async def get_database_pool():
     if pool is None:
         pool = await aiomysql.create_pool(
             host=os.getenv("DB_HOST", "localhost"),
-            port=os.getenv("DB_PORT"),
+            port=int(os.getenv("DB_PORT")),
             user=os.getenv("DB_USER"),
             password=os.getenv("MYSQL_PW"),
             db=os.getenv("DATABASE"),
