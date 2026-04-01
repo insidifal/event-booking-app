@@ -2,6 +2,7 @@ import { loginBtn, registerBtn } from './login.js';
 import { profileBtn } from './profile.js';
 import { displayEvents } from './events.js';
 import { accountBtn } from './account.js';
+import { bookingsBtn } from './bookings.js';
 
 const banner = document.getElementById('buttons');
 const main = document.getElementById('main');
@@ -12,7 +13,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('loggedIn', async () => {
-    banner.prepend(await accountBtn(), profileBtn());
+    banner.prepend(bookingsBtn(), await accountBtn(), profileBtn());
 });
 document.addEventListener('loggedOut', () => {
     banner.append( registerBtn() );

@@ -17,6 +17,7 @@ export const postBooking = async (event, seats, total_price) => {
             },
             body: JSON.stringify({
                 'user_id': user['user_id'],
+                'account_id': account['account_id'],
                 'event_id': event["event_id"],
                 'seats': seats,
                 'total_price': total_price,
@@ -57,7 +58,7 @@ const getEvents = async () => {
     }
 }
 
-const getEvent = async (event_id) => {
+export const getEvent = async (event_id) => {
     try {
         const response = await fetch(`/event/${event_id}`, {
             method: 'GET',
@@ -247,7 +248,7 @@ export const bookEvent = (event) => {
 
         const price = document.createElement('div');
         price.innerHTML = `
-            <label for="booking-seats">${event["currency"]}</label>
+            <label for="booking-price">${event["currency"]}</label>
             <span id="booking-price">${event["price"]}</span>
         `;
         div.append(price);
@@ -258,7 +259,15 @@ export const bookEvent = (event) => {
         div.append(book);
 
         book.addEventListener('click', async () => {
-            await postBooking(event, document.getElementById('booking-seats').value, document.getElementById('booking-price').textContent);
+            const seats = document.getElementById('booking-seats').value;
+            const total_price = document.getElementById('booking-price').textContent;
+            if (account["account_id"] === "") {
+                showAlert("Please activate your account");
+            } else if (total_price <= account["balance"]) {
+                await postBooking(event, seats, total_price);
+            } else {
+                showAlert("Insufficient funds");
+            }
         });
     } catch (error) {
         showAlert(error);
