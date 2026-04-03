@@ -10,6 +10,8 @@ This architecture implements the MVC design pattern by separating the concerns o
  - Database: MySQL
  - Frontend: HTML, CSS, JS
 
+## Deployment link: https://webeventsapp.instatunnel.my/
+
 ## Usage
 
 The app can be run locally using:
